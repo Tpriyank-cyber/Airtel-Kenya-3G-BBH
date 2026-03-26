@@ -154,7 +154,11 @@ if st.button("🚀 Generate Report"):
 
             # FINAL
             selected_cols = ['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID',
-                             'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %','PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS']
+                             'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
+                             'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS'
+                             'SHO SR %','HS DROP RATE %','Act HS-DSCH end usr thp_Kbps','DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
+                             'Total CS traffic - Erl(Daily)']
+
 
             for col in selected_cols:
                 if col not in formula_df.columns:
