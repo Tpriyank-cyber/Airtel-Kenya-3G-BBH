@@ -157,7 +157,7 @@ if st.button("🚀 Generate Report"):
                              'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
                              'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS'
                              'SHO SR %','HS DROP RATE %','Act HS-DSCH end usr thp_Kbps','DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
-                             'Total CS traffic - Erl(Daily)']
+                             'Total CS traffic - Erl(Daily)','HSDPA USERS','SHO SR %']
 
 
             for col in selected_cols:
