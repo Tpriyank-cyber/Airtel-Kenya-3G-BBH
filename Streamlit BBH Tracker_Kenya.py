@@ -142,10 +142,12 @@ if st.button("🚀 Generate Report"):
             formula_df['PS RAB SR %'] = safe_kpi(formula_df, 'PS_RAB_SR_Nom', 'PS_RAB_SR_denom')
             formula_df['PS RRC SR %'] = safe_kpi(formula_df, 'PS RRC Setup Success Rate _NUM', 'PS RRC Setup Success Rate _DENUM')
             formula_df['CS IRAT SR %'] = safe_kpi(formula_df, 'CS Inter Sys HHO Success Num', 'CS Inter Sys HHO Success Denom')
+            
 
             # Direct KPIs
             formula_df['HSDPA USERS'] = formula_df.get('Average number of simultaneous HSDPA users', np.nan)
             formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df.get('Act HS-DSCH end usr thp', np.nan)
+            formula_df['Average RTWP'] = formula_df.get('Average RTWP', np.nan)
 
             # Daily KPIs
             formula_df['DATA TRAFFIC_GB(Daily)'] = pd.to_numeric(formula_df.get('PSTraffic_Airtel_ASCA'), errors='coerce') / 1024
@@ -157,7 +159,7 @@ if st.button("🚀 Generate Report"):
                              'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
                              'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS'
                              'SHO SR %','HS DROP RATE %','Act HS-DSCH end usr thp_Kbps','DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
-                             'Total CS traffic - Erl(Daily)','HSDPA USERS','SHO SR %']
+                             'Total CS traffic - Erl(Daily)','HSDPA USERS','SHO SR %','Average RTWP']
 
 
             for col in selected_cols:
