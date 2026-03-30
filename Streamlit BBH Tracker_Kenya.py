@@ -94,7 +94,7 @@ if st.button("🚀 Generate Report"):
                        'CS_RAB_SR_Nom','CS_RAB_SR_denom','Voice DCR Num','Voice DCR Denom',
                        'Soft HO Success Num','Soft HO Success Denom',
                        'CS RRC Setup Success Rate _NUM','CS RRC Setup Success Rate _DENUM',
-                       'CS Inter Sys HHO Success Num','CS Inter Sys HHO Success Denom']
+                       'CS Inter Sys HHO Success Num','CS Inter Sys HHO Success Denom','Average RTWP']
 
             ps_cols = ['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID',
                        'Average number of simultaneous HSDPA users','PS_RAB_SR_Nom','PS_RAB_SR_denom',
