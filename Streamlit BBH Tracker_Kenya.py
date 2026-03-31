@@ -130,10 +130,20 @@ if st.button("🚀 Generate Report"):
 
             # SAFE KPI FUNCTION
             def safe_kpi(df, num, den):
+            
                 if num in df.columns and den in df.columns:
-                    return (pd.to_numeric(df[num], errors='coerce') /
-                            pd.to_numeric(df[den], errors='coerce').replace(0, np.nan)) * 100
-                return np.nan
+            
+                    n = pd.to_numeric(df[num], errors='coerce')
+                    d = pd.to_numeric(df[den], errors='coerce')
+            
+                    result = (n / d.replace(0, np.nan)) * 100
+            
+                    # 🔥 CONDITION: BOTH NUM & DEN BLANK → NA
+                    result[(n.isna()) & (d.isna())] = "NA"
+            
+                    return result
+            
+                return "NA"
 
             # KPIs
             formula_df['VOICE DROP RATE %'] = safe_kpi(formula_df, 'Voice DCR Num', 'Voice DCR Denom')
@@ -147,9 +157,16 @@ if st.button("🚀 Generate Report"):
             
 
             # Direct KPIs
-            formula_df['HSDPA USERS'] = formula_df.get('Average number of simultaneous HSDPA users', np.nan)
-            formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df.get('Act HS-DSCH end usr thp', np.nan)
+     
+            formula_df['HSDPA USERS'] = formula_df.get('Average number of simultaneous HSDPA users')
+            formula_df['HSDPA USERS'] = formula_df['HSDPA USERS'].fillna("NA")
+
+            formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df.get('Act HS-DSCH end usr thp')
+            formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df['Act HS-DSCH end usr thp_Kbps'].fillna("NA")
+
+            
             formula_df['Average RTWP'] = formula_df.get('Average RTWP', np.nan)
+            formula_df['Average RTWP'] = formula_df['Average RTWP'].fillna("NA")
 
             # Daily KPIs
             formula_df['DATA TRAFFIC_GB(Daily)'] = pd.to_numeric(formula_df.get('PSTraffic_Airtel_ASCA'), errors='coerce') / 1024
@@ -174,12 +191,45 @@ if st.button("🚀 Generate Report"):
             df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
                                 var_name='Kpis', value_name='value')
 
+            # ======================================
+            # FORCE ALL KPI COMBINATIONS
+            # ======================================
+            
+            all_kpis = ['VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
+                        'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
+                        'HSDPA USERS','SHO SR %','HS DROP RATE %',
+                        'Act HS-DSCH end usr thp_Kbps',
+                        'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
+                        'Total CS traffic - Erl(Daily)']
+            
+            # Get unique cell combinations
+            all_cells = df[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
+            
+            # Create full index (cell + KPI)
+            full_index = pd.MultiIndex.from_product(
+                [
+                    all_cells['WBTS name'],
+                    all_cells['WBTS ID'],
+                    all_cells['WCEL name'],
+                    all_cells['WCEL ID'],
+                    all_kpis
+                ],
+                names=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            )
+            
+            # Reindex to force all KPIs
+            df_melted = df_melted.set_index(
+                ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            ).reindex(full_index).reset_index()
+
+
             df_pivot = df_melted.pivot_table(
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
                 columns='Period start time',
                 values='value',
                 aggfunc='first'
             ).reset_index()
+            df_pivot = df_pivot.fillna("NA")
 
             # DOWNLOAD
             output = BytesIO()
