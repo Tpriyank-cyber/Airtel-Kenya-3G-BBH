@@ -231,12 +231,6 @@ if st.button("🚀 Generate Report"):
             )
             
             
-            # Reindex to force all KPIs
-            df_melted = df_melted.set_index(
-                ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
-            ).reindex(full_index).reset_index()
-
-
             df_pivot = df_melted.pivot_table(
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
                 columns='Period start time',
