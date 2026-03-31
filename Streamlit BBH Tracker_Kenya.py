@@ -157,7 +157,7 @@ if st.button("🚀 Generate Report"):
             # FINAL
             selected_cols = ['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID',
                              'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
-                             'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS'
+                             'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS',
                              'SHO SR %','HS DROP RATE %','Act HS-DSCH end usr thp_Kbps','DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
                              'Total CS traffic - Erl(Daily)','HSDPA USERS','SHO SR %','Average RTWP']
 
@@ -175,7 +175,8 @@ if st.button("🚀 Generate Report"):
             df_pivot = df_melted.pivot_table(
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
                 columns='Period start time',
-                values='value'
+                values='value',
+                aggfunc='first'
             ).reset_index()
 
             # DOWNLOAD
