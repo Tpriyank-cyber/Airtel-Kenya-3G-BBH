@@ -191,8 +191,10 @@ if st.button("🚀 Generate Report"):
             df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
                                 var_name='Kpis', value_name='value')
 
+
+
             # ======================================
-            # FORCE ALL KPI COMBINATIONS
+            # FORCE ALL KPI COMBINATIONS (CORRECT)
             # ======================================
             
             all_kpis = ['VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
@@ -202,20 +204,32 @@ if st.button("🚀 Generate Report"):
                         'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
                         'Total CS traffic - Erl(Daily)']
             
-            # Get unique cell combinations
+            # Unique cells (correct combinations)
             all_cells = df[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
             
-            # Create full index (cell + KPI)
-            full_index = pd.MultiIndex.from_product(
-                [
-                    all_cells['WBTS name'],
-                    all_cells['WBTS ID'],
-                    all_cells['WCEL name'],
-                    all_cells['WCEL ID'],
-                    all_kpis
-                ],
-                names=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            # Create correct full structure
+            full_rows = []
+            
+            for _, row in all_cells.iterrows():
+                for kpi in all_kpis:
+                    full_rows.append({
+                        'WBTS name': row['WBTS name'],
+                        'WBTS ID': row['WBTS ID'],
+                        'WCEL name': row['WCEL name'],
+                        'WCEL ID': row['WCEL ID'],
+                        'Kpis': kpi
+                    })
+            
+            full_df = pd.DataFrame(full_rows)
+            
+            # Merge with actual data
+            df_melted = pd.merge(
+                full_df,
+                df_melted,
+                on=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
+                how='left'
             )
+            
             
             # Reindex to force all KPIs
             df_melted = df_melted.set_index(
