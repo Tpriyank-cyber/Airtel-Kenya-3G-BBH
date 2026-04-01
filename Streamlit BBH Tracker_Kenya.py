@@ -199,18 +199,19 @@ if st.button("🚀 Generate Report"):
                         'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
                         'Total CS traffic - Erl(Daily)','Average RTWP']
             
-            df_melted['Kpis'] = pd.Categorical(df_melted['Kpis'], categories=all_kpis)
-
-                        
+            df_melted['Kpis'] = pd.Categorical(df_melted['Kpis'], categories=all_kpis)                        
             
             df_pivot = df_melted.pivot_table(
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
                 columns='Period start time',
                 values='value',
-                aggfunc='first',
-                dropna=False
+                aggfunc='first'
             ).reset_index()
-            df_pivot = df_pivot.fillna("")
+            
+            # Ensure all KPI rows exist (without memory explosion)
+            df_pivot = df_pivot.set_index(
+                ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            ).unstack(fill_value="").stack().reset_index()
 
 
             # DOWNLOAD
