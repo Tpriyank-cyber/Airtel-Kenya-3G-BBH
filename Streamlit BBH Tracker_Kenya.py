@@ -236,6 +236,7 @@ if st.button("🚀 Generate Report"):
                 columns='Period start time',
                 values='value',
                 aggfunc='first'
+                dropna=False
             ).reset_index()
             df_pivot = df_pivot.fillna("")
 
