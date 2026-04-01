@@ -188,43 +188,43 @@ if st.button("🚀 Generate Report"):
     
 
             # PIVOT
-            df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
-                                var_name='Kpis', value_name='value')
-
-            # Define all KPIs (force presence)
-            all_kpis = ['VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
-                        'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
-                        'HSDPA USERS','SHO SR %','HS DROP RATE %',
-                        'Act HS-DSCH end usr thp_Kbps',
-                        'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
-                        'Total CS traffic - Erl(Daily)','Average RTWP']
+            # ==========================
+            # SAFE PIVOT (NO MELT)
+            # ==========================
             
-            df_melted['Kpis'] = pd.Categorical(df_melted['Kpis'], categories=all_kpis)                        
+            index_cols = ['WBTS name','WBTS ID','WCEL name','WCEL ID']
             
-            df_pivot = df_melted.pivot_table(
-                index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
+            kpi_cols = [
+                'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
+                'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
+                'SHO SR %','HS DROP RATE %',
+                'Act HS-DSCH end usr thp_Kbps',
+                'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
+                'Total CS traffic - Erl(Daily)','HSDPA USERS','Average RTWP'
+            ]
+            
+            # Ensure all KPI columns exist
+            for col in kpi_cols:
+                if col not in formula_df.columns:
+                    formula_df[col] = np.nan
+            
+            df_pivot = pd.pivot_table(
+                formula_df,
+                index=index_cols,
                 columns='Period start time',
-                values='value',
+                values=kpi_cols,
                 aggfunc='first'
-            ).reset_index()
-            
-            # ✅ Ensure all KPIs exist per cell
-            unique_cells = df[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
-            
-            full_index = pd.MultiIndex.from_product(
-                [
-                    unique_cells['WBTS name'],
-                    unique_cells['WBTS ID'],
-                    unique_cells['WCEL name'],
-                    unique_cells['WCEL ID'],
-                    all_kpis
-                ],
-                names=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
             )
             
-            df_pivot = df_pivot.set_index(
-                ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
-            ).reindex(full_index).reset_index()
+            # Convert to your required format (same as your working code)
+            df_pivot = df_pivot.stack(level=0).reset_index()
+            
+            # Rename KPI column
+            df_pivot.rename(columns={df_pivot.columns[len(index_cols)]: 'Kpis'}, inplace=True)
+           
+            
+         
+
 
 
             # DOWNLOAD
