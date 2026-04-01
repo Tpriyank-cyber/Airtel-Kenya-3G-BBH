@@ -136,14 +136,15 @@ if st.button("🚀 Generate Report"):
                     n = pd.to_numeric(df[num], errors='coerce')
                     d = pd.to_numeric(df[den], errors='coerce')
             
+                    # KPI calculation
                     result = (n / d.replace(0, np.nan)) * 100
             
-                    # 🔥 CONDITION: BOTH NUM & DEN BLANK → NA
-                    result[(n.isna()) & (d.isna())] = "NA"
+                    # If both num & den are blank → keep NaN
+                    result[(n.isna()) & (d.isna())] = np.nan
             
                     return result
             
-                return "NA"
+                return np.nan
 
             # KPIs
             formula_df['VOICE DROP RATE %'] = safe_kpi(formula_df, 'Voice DCR Num', 'Voice DCR Denom')
@@ -237,7 +238,7 @@ if st.button("🚀 Generate Report"):
                 values='value',
                 aggfunc='first'
             ).reset_index()
-            df_pivot = df_pivot.fillna("NA")
+            df_pivot = df_pivot.fillna("")
 
             # DOWNLOAD
             output = BytesIO()
