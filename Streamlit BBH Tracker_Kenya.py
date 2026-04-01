@@ -208,10 +208,23 @@ if st.button("🚀 Generate Report"):
                 aggfunc='first'
             ).reset_index()
             
-            # Ensure all KPI rows exist (without memory explosion)
+            # ✅ Ensure all KPIs exist per cell
+            unique_cells = df[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
+            
+            full_index = pd.MultiIndex.from_product(
+                [
+                    unique_cells['WBTS name'],
+                    unique_cells['WBTS ID'],
+                    unique_cells['WCEL name'],
+                    unique_cells['WCEL ID'],
+                    all_kpis
+                ],
+                names=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            )
+            
             df_pivot = df_pivot.set_index(
                 ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
-            ).unstack(fill_value="").stack().reset_index()
+            ).reindex(full_index).reset_index()
 
 
             # DOWNLOAD
