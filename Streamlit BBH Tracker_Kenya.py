@@ -214,9 +214,16 @@ if st.button("🚀 Generate Report"):
             # Create correct full structure
             # Only ensure KPIs exist per CELL (not full explosion)
             
+            
+            # Create KPI dataframe
             kpi_df = pd.DataFrame({'Kpis': all_kpis})
             
-            full_df = all_cells.merge(kpi_df, how='cross')
+            # Create DATE dataframe (IMPORTANT FIX)
+            date_df = pd.DataFrame({'Period start time': df['Period start time'].dropna().unique()})
+            
+            # CROSS JOIN STEP-BY-STEP (SAFE)
+            full_df = all_cells.merge(date_df, how='cross').merge(kpi_df, how='cross')
+
             
             # Merge with actual data
             df_melted = pd.merge(
