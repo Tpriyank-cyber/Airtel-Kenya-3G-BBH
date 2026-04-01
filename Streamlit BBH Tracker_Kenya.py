@@ -185,6 +185,41 @@ if st.button("🚀 Generate Report"):
 
             df = formula_df[selected_cols]
 
+            # ==========================
+            # SAFE PIVOT
+            # ==========================
+            
+            index_cols = ['WBTS name','WBTS ID','WCEL name','WCEL ID']
+            
+            kpi_cols = [
+                'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
+                'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
+                'SHO SR %','HS DROP RATE %',
+                'Act HS-DSCH end usr thp_Kbps',
+                'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
+                'Total CS traffic - Erl(Daily)','HSDPA USERS','Average RTWP'
+            ]
+            
+            # Ensure all KPI columns exist
+            for col in kpi_cols:
+                if col not in df.columns:
+                    df[col] = np.nan
+            
+            # PIVOT
+            df_pivot = pd.pivot_table(
+                df,
+                index=index_cols,
+                columns='Period start time',
+                values=kpi_cols,
+                aggfunc='first'
+            )
+            
+            # Convert KPI to rows
+            df_pivot = df_pivot.stack(level=0).reset_index()
+            
+            # Rename KPI column
+            df_pivot.rename(columns={df_pivot.columns[len(index_cols)]: 'Kpis'}, inplace=True)
+
     
 
             # PIVOT
@@ -221,6 +256,24 @@ if st.button("🚀 Generate Report"):
             
             # Rename KPI column
             df_pivot.rename(columns={df_pivot.columns[len(index_cols)]: 'Kpis'}, inplace=True)
+
+            # ==========================
+            # ENSURE ALL KPIs PER CELL
+            # ==========================
+            
+            unique_cells = df_pivot[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
+            
+            base = unique_cells.merge(
+                pd.DataFrame({'Kpis': kpi_cols}),
+                how='cross'
+            )
+            
+            df_final = pd.merge(
+                base,
+                df_pivot,
+                on=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
+                how='left'
+            )
            
             
          
@@ -229,7 +282,7 @@ if st.button("🚀 Generate Report"):
 
             # DOWNLOAD
             output = BytesIO()
-            df_pivot.to_excel(output, index=False)
+            df_final.to_excel(output, index=False)
 
             st.success("✅ Report Generated Successfully")
             st.download_button("📥 Download Report", data=output.getvalue(), file_name="BBH_Output.xlsx")
