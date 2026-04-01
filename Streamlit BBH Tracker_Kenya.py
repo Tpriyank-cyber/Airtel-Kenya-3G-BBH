@@ -235,7 +235,7 @@ if st.button("🚀 Generate Report"):
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
                 columns='Period start time',
                 values='value',
-                aggfunc='first'
+                aggfunc='first',
                 dropna=False
             ).reset_index()
             df_pivot = df_pivot.fillna("")
