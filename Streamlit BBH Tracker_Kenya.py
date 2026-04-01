@@ -185,7 +185,7 @@ if st.button("🚀 Generate Report"):
 
             df = formula_df[selected_cols]
 
-            all_dates = df['Period start time'].drop_duplicates()
+            all_dates = pd.Series(df['Period start time'].dropna().unique())
 
             # PIVOT
             df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
@@ -212,15 +212,11 @@ if st.button("🚀 Generate Report"):
             ]).drop_duplicates().reset_index(drop=True)
             
             # Create correct full structure
-            all_cells['key'] = 1
-            all_dates = all_dates.to_frame(name='Period start time')
-            all_dates['key'] = 1
+            # Only ensure KPIs exist per CELL (not full explosion)
             
-            kpi_df = pd.DataFrame({'Kpis': all_kpis, 'key': 1})
+            kpi_df = pd.DataFrame({'Kpis': all_kpis})
             
-            full_df = all_cells.merge(all_dates, on='key') \
-                               .merge(kpi_df, on='key') \
-                               .drop('key', axis=1)
+            full_df = all_cells.merge(kpi_df, how='cross')
             
             # Merge with actual data
             df_melted = pd.merge(
@@ -239,6 +235,10 @@ if st.button("🚀 Generate Report"):
                 dropna=False
             ).reset_index()
             df_pivot = df_pivot.fillna("")
+
+            print("Cells:", len(all_cells))
+            print("Dates:", len(all_dates))
+            print("KPIs:", len(all_kpis))
 
             # DOWNLOAD
             output = BytesIO()
