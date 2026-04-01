@@ -185,18 +185,13 @@ if st.button("🚀 Generate Report"):
 
             df = formula_df[selected_cols]
 
-            all_dates = pd.Series(df['Period start time'].dropna().unique())
+    
 
             # PIVOT
             df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
                                 var_name='Kpis', value_name='value')
 
-
-
-            # ======================================
-            # FORCE ALL KPI COMBINATIONS (CORRECT)
-            # ======================================
-            
+            # Define all KPIs (force presence)
             all_kpis = ['VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
                         'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
                         'HSDPA USERS','SHO SR %','HS DROP RATE %',
@@ -204,34 +199,8 @@ if st.button("🚀 Generate Report"):
                         'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
                         'Total CS traffic - Erl(Daily)','Average RTWP']
             
-            # Unique cells (correct combinations)
-            all_cells = pd.concat([
-                cs_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']],
-                ps_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']],
-                daily_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']]
-            ]).drop_duplicates().reset_index(drop=True)
-            
-            # Create correct full structure
-            # Only ensure KPIs exist per CELL (not full explosion)
-            
-            
-            # Create KPI dataframe
-            kpi_df = pd.DataFrame({'Kpis': all_kpis})
-            
-            # Create DATE dataframe (IMPORTANT FIX)
-            date_df = pd.DataFrame({'Period start time': df['Period start time'].dropna().unique()})
-            
-            # CROSS JOIN STEP-BY-STEP (SAFE)
-            full_df = all_cells.merge(date_df, how='cross').merge(kpi_df, how='cross')
+            df_melted['Kpis'] = pd.Categorical(df_melted['Kpis'], categories=all_kpis)
 
-            
-            # Merge with actual data
-            df_melted = pd.merge(
-                full_df,
-                df_melted,
-                on=['WBTS name','WBTS ID','WCEL name','WCEL ID','Period start time','Kpis'],
-                how='left'
-            )
                         
             
             df_pivot = df_melted.pivot_table(
@@ -243,9 +212,6 @@ if st.button("🚀 Generate Report"):
             ).reset_index()
             df_pivot = df_pivot.fillna("")
 
-            print("Cells:", len(all_cells))
-            print("Dates:", len(all_dates))
-            print("KPIs:", len(all_kpis))
 
             # DOWNLOAD
             output = BytesIO()
