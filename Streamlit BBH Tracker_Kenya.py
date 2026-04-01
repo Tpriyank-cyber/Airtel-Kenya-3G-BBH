@@ -160,14 +160,8 @@ if st.button("🚀 Generate Report"):
             # Direct KPIs
      
             formula_df['HSDPA USERS'] = formula_df.get('Average number of simultaneous HSDPA users')
-            formula_df['HSDPA USERS'] = formula_df['HSDPA USERS'].fillna("NA")
-
             formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df.get('Act HS-DSCH end usr thp')
-            formula_df['Act HS-DSCH end usr thp_Kbps'] = formula_df['Act HS-DSCH end usr thp_Kbps'].fillna("NA")
-
-            
             formula_df['Average RTWP'] = formula_df.get('Average RTWP', np.nan)
-            formula_df['Average RTWP'] = formula_df['Average RTWP'].fillna("NA")
 
             # Daily KPIs
             formula_df['DATA TRAFFIC_GB(Daily)'] = pd.to_numeric(formula_df.get('PSTraffic_Airtel_ASCA'), errors='coerce') / 1024
@@ -177,9 +171,9 @@ if st.button("🚀 Generate Report"):
             # FINAL
             selected_cols = ['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID',
                              'VOICE DROP RATE %','CS RRC SR %','CS RAB SR %',
-                             'PS RRC SR %','PS RAB SR %','CS IRAT SR %','HSDPA USERS',
+                             'PS RRC SR %','PS RAB SR %','CS IRAT SR %',
                              'SHO SR %','HS DROP RATE %','Act HS-DSCH end usr thp_Kbps','DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
-                             'Total CS traffic - Erl(Daily)','HSDPA USERS','SHO SR %','Average RTWP']
+                             'Total CS traffic - Erl(Daily)','HSDPA USERS','Average RTWP']
 
 
             for col in selected_cols:
@@ -203,10 +197,14 @@ if st.button("🚀 Generate Report"):
                         'HSDPA USERS','SHO SR %','HS DROP RATE %',
                         'Act HS-DSCH end usr thp_Kbps',
                         'DATA TRAFFIC_GB(Daily)','24 Hours_RNA %',
-                        'Total CS traffic - Erl(Daily)']
+                        'Total CS traffic - Erl(Daily)','Average RTWP']
             
             # Unique cells (correct combinations)
-            all_cells = df[['WBTS name','WBTS ID','WCEL name','WCEL ID']].drop_duplicates()
+            all_cells = pd.concat([
+                cs_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']],
+                ps_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']],
+                daily_df[['WBTS name','WBTS ID','WCEL name','WCEL ID']]
+            ]).drop_duplicates().reset_index(drop=True)
             
             # Create correct full structure
             full_rows = []
