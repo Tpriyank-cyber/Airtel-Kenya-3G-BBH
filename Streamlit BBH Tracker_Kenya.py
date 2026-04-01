@@ -129,18 +129,21 @@ if st.button("🚀 Generate Report"):
                 return (formula_df[num] / formula_df[den].replace(0, np.nan)) * 100
 
             # SAFE KPI FUNCTION
+
             def safe_kpi(df, num, den):
-            
+
                 if num in df.columns and den in df.columns:
             
                     n = pd.to_numeric(df[num], errors='coerce')
                     d = pd.to_numeric(df[den], errors='coerce')
             
-                    # KPI calculation
                     result = (n / d.replace(0, np.nan)) * 100
             
-                    # If both num & den are blank → keep NaN
+                    # ✅ CASE 1: BOTH BLANK → BLANK
                     result[(n.isna()) & (d.isna())] = np.nan
+            
+                    # ✅ CASE 2: BOTH ZERO → "NA"
+                    result[(n == 0) & (d == 0)] = "NA"
             
                     return result
             
