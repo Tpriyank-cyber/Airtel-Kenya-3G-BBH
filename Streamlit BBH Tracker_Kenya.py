@@ -182,6 +182,8 @@ if st.button("🚀 Generate Report"):
 
             df = formula_df[selected_cols]
 
+            all_dates = df['Period start time'].drop_duplicates()
+
             # PIVOT
             df_melted = pd.melt(df, id_vars=['Period start time','WBTS name','WBTS ID','WCEL name','WCEL ID'],
                                 var_name='Kpis', value_name='value')
@@ -207,28 +209,24 @@ if st.button("🚀 Generate Report"):
             ]).drop_duplicates().reset_index(drop=True)
             
             # Create correct full structure
-            full_rows = []
+            all_cells['key'] = 1
+            all_dates = all_dates.to_frame(name='Period start time')
+            all_dates['key'] = 1
             
-            for _, row in all_cells.iterrows():
-                for kpi in all_kpis:
-                    full_rows.append({
-                        'WBTS name': row['WBTS name'],
-                        'WBTS ID': row['WBTS ID'],
-                        'WCEL name': row['WCEL name'],
-                        'WCEL ID': row['WCEL ID'],
-                        'Kpis': kpi
-                    })
+            kpi_df = pd.DataFrame({'Kpis': all_kpis, 'key': 1})
             
-            full_df = pd.DataFrame(full_rows)
+            full_df = all_cells.merge(all_dates, on='key') \
+                               .merge(kpi_df, on='key') \
+                               .drop('key', axis=1)
             
             # Merge with actual data
             df_melted = pd.merge(
                 full_df,
                 df_melted,
-                on=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
+                on=['WBTS name','WBTS ID','WCEL name','WCEL ID','Period start time','Kpis'],
                 how='left'
             )
-            
+                        
             
             df_pivot = df_melted.pivot_table(
                 index=['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis'],
