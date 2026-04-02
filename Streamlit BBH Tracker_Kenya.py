@@ -143,7 +143,7 @@ if st.button("🚀 Generate Report"):
                     result[(n.isna()) & (d.isna())] = np.nan
             
                     # ✅ CASE 2: BOTH ZERO → "NA"
-                    result[(n == 0) & (d == 0)] = "NA"
+                    result[(n == 0) & (d == 0)] = np.nan
             
                     return result
             
@@ -278,7 +278,7 @@ if st.button("🚀 Generate Report"):
             
          
 
-
+            df_final = df_final.replace(np.nan, "NA")
 
             # DOWNLOAD
             output = BytesIO()
