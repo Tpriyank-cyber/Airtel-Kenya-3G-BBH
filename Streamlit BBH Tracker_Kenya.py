@@ -279,6 +279,7 @@ if st.button("🚀 Generate Report"):
          
 
             df_final = df_final.replace(np.nan, "NA")
+            date_cols_sorted = sorted(date_cols, key=lambda x: pd.to_datetime(x))
 
             # DOWNLOAD
             output = BytesIO()
