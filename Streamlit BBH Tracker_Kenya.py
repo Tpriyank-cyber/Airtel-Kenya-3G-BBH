@@ -279,7 +279,20 @@ if st.button("🚀 Generate Report"):
          
 
             df_final = df_final.replace(np.nan, "NA")
-            date_cols_sorted = sorted(date_cols, key=lambda x: pd.to_datetime(x))
+            # ==========================
+            # SORT DATE COLUMNS
+            # ==========================
+            
+            # Identify date columns (exclude fixed columns)
+            fixed_cols = ['WBTS name','WBTS ID','WCEL name','WCEL ID','Kpis']
+            
+            date_cols = [col for col in df_final.columns if col not in fixed_cols]
+            
+            # Convert to datetime for proper sorting
+            date_cols_sorted = sorted(date_cols)
+            
+            # Reorder dataframe
+            df_final = df_final[fixed_cols + date_cols_sorted]
 
             # DOWNLOAD
             output = BytesIO()
